@@ -60,8 +60,6 @@ class ApiService {
       thumbnail: data['thumbnail'],
       author: data['author'],
       description: data['description'],
-      genre: List<Map<String, String>>.from(data['genre']),
-      chapter: List<Map<String, String>>.from(data['chapter']),
     );
   }
 }

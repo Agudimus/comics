@@ -5,8 +5,6 @@ class DetailKomik {
   final String thumbnail;
   final String author;
   final String description;
-  final List<Map<String, String>> genre;
-  final List<Map<String, String>> chapter;
 
   DetailKomik({
     required this.title,
@@ -15,7 +13,5 @@ class DetailKomik {
     required this.thumbnail,
     required this.author,
     required this.description,
-    required this.genre,
-    required this.chapter,
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/recommended_komik.dart';
 import 'models/popular_komik.dart';
+import 'models/detail_komik.dart';
 import 'services/api_service.dart';
 
 void main() {
@@ -62,6 +63,14 @@ class MyHomePage extends StatelessWidget {
                 ],
               ),
               leading: Image.network(komik.thumbnail),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailPage(href: komik.href),
+                  ),
+                );
+              },
             );
           },
         );
@@ -98,6 +107,93 @@ class MyHomePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class DetailPage extends StatelessWidget {
+  final String href;
+  final ApiService apiService = ApiService();
+
+  DetailPage({required this.href});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DetailKomik>(
+      future: apiService.fetchDetailKomik(href),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text(
+                  'Error fetching detail data: ${snapshot.error.toString()}'));
+        } else if (!snapshot.hasData) {
+          return Center(child: Text('No detail data available'));
+        }
+
+        final detailKomik = snapshot.data!;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(detailKomik.title),
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Center(child: Image.network(detailKomik.thumbnail)),
+                  SizedBox(height: 20),
+                  _buildDetailTable(detailKomik),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailTable(DetailKomik detailKomik) {
+    return Table(
+      columnWidths: {
+        0: FlexColumnWidth(0.3),
+        1: FlexColumnWidth(0.7),
+      },
+      children: [
+        _buildTableRow('Rating', detailKomik.rating),
+        _buildTableRow('Status', detailKomik.status),
+        _buildTableRow('Author', detailKomik.author),
+        _buildTableRow('Description', detailKomik.description),
+      ],
+    );
+  }
+
+  TableRow _buildTableRow(String label, String value) {
+    return TableRow(
+      children: [
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(label),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(value),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
